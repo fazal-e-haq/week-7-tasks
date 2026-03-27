@@ -4,30 +4,41 @@ import 'package:firebase_auth_app/Widgets/button_widget.dart';
 import 'package:firebase_auth_app/Widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  bool newloading = false;
 
-  void showErrorMassage(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-  }
+  var formKey = GlobalKey<FormState>();
 
-  Future<void> verification(BuildContext context) async {
-    if (_emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty) {
-      return showErrorMassage(context, 'Fill all the form');
-    }
-    if (!_emailController.text.endsWith('@gmail.com'))
-      return showErrorMassage(context, 'Enter a valid email');
-    // if (_passwordController != _confirmPasswordController) return showErrorMassage(context,' Enter same password ');
-    await AuthService().signupWithEmail(
-      _emailController.text,
-      _passwordController.text,
-    );
+  Future<void> verification() async {
+    setState(() {
+      newloading = true;
+    });
+    await AuthService()
+        .signupWithEmail(
+          _emailController.text.toString(),
+          _passwordController.text.toString(),
+        )
+        .then((value) {
+          setState(() {
+            newloading = false;
+          });
+        })
+        .onError((error, stackTrace) {
+          setState(() {
+            newloading = false;
+          });
+          debugPrint('$error');
+        });
   }
 
   @override
@@ -50,29 +61,39 @@ class RegisterScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 SizedBox(height: 100),
-                TextFieldWidget(
-                  hintText: 'Email',
-                  controller: _emailController,
-                ),
-                SizedBox(height: 20),
-                TextFieldWidget(
-                  hintText: 'Password',
-                  controller: _passwordController,
-                ),
-                SizedBox(height: 20),
-                TextFieldWidget(
-                  hintText: 'Confirm Password',
-                  controller: _confirmPasswordController,
+                Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      TextFieldWidget(
+                        hintText: 'Email',
+                        controller: _emailController,
+                      ),
+                      SizedBox(height: 20),
+                      TextFieldWidget(
+                        hintText: 'Password',
+                        controller: _passwordController,
+                      ),
+                      SizedBox(height: 20),
+                      // TextFieldWidget(
+                      //   hintText: 'Confirm Password',
+                      //   controller: _confirmPasswordController,
+                      // ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 50),
                 ButtonWidget(
+                  isloading: newloading,
                   widget: Text('Register'),
                   onTap: () {
-                    verification(context);
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => LoginScreen()),
-                    // );
+                    if (formKey.currentState!.validate()) {
+                      verification();
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => LoginScreen()),
+                      // );
+                    }
                   },
                 ),
                 SizedBox(height: 7),

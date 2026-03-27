@@ -1,13 +1,38 @@
+import 'package:firebase_auth_app/Screens/home_screen.dart';
 import 'package:firebase_auth_app/Screens/register_screen.dart';
 import 'package:firebase_auth_app/Services/auth_service.dart';
 import 'package:firebase_auth_app/Widgets/button_widget.dart';
 import 'package:firebase_auth_app/Widgets/text_field_widget.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
+  bool newloading = false;
+  Future<void> verify() async {
+    setState(() {
+      newloading = true;
+    });
+    await AuthService()
+        .signinWithEmail(
+          _emailController.text.toString(),
+          _passwordController.text.toString(),
+        )
+        .then((value) {
+          setState(() {
+            newloading = false;
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,12 +64,10 @@ class LoginScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 50),
                 ButtonWidget(
+                  isloading: newloading,
                   widget: Text('Login'),
                   onTap: () {
-                    AuthService().signinWithEmail(
-                      _emailController.text,
-                      _passwordController.text,
-                    );
+                    verify();
                   },
                 ),
                 SizedBox(height: 5),

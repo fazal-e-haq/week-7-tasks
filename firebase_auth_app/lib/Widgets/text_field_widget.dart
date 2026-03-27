@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TextFieldWidget extends StatelessWidget {
-   TextFieldWidget({
+  TextFieldWidget({
     super.key,
     required this.hintText,
     required this.controller,
@@ -12,7 +12,10 @@ class TextFieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      validator: (value) {
+        if (value!.isEmpty) return 'Enter correctly';
+      },
       decoration: InputDecoration(
         filled: true,
         hintText: hintText,
@@ -22,6 +25,7 @@ class TextFieldWidget extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(borderRadius: .circular(10)),
       ),
+
       controller: controller,
     );
   }

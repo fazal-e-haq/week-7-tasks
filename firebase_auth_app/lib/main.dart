@@ -24,7 +24,7 @@ class AuthApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return HomeScreen(email: snapshot.data?.email ?? 'No Email');
+            return HomeScreen(email: snapshot.data?.email.toString() ?? 'No Email');
           }
           return LoginScreen();
         },
